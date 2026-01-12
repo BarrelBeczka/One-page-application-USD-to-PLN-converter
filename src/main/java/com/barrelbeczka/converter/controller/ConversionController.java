@@ -1,6 +1,7 @@
 package com.barrelbeczka.converter.controller;
 
 import com.barrelbeczka.converter.model.ConversionRecord;
+import com.barrelbeczka.converter.repository.ConversionRepository;
 import com.barrelbeczka.converter.service.CurrencyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class ConversionController {
 
     private final CurrencyService currencyService;
-    private final List<ConversionRecord> history = new ArrayList<>();
+    private final ConversionRepository conversionRepository;
 
     @PostMapping("/convert")
     public ConversionRecord convert(@RequestParam double amount, @RequestParam(defaultValue = "PLN") String sourceCurrency) {
@@ -39,14 +40,15 @@ public class ConversionController {
         targetAmount = Math.round(targetAmount * 100.0) / 100.0;
 
         ConversionRecord record = new ConversionRecord(amount, targetAmount, sourceCurrency.toUpperCase(), targetCurrency, rate, LocalDateTime.now());
-        history.add(record);
-        return record;
+        return conversionRepository.save(record);
     }
 
     @GetMapping("/history")
     public List<ConversionRecord> getHistory() {
         // Return latest first
-        return history.stream()
+        // Ideally we would use pagination or a custom query method, but doing it in memory for now to match previous logic exactly or simply sort the findAll result.
+        // Better yet: let's do it in Java for simplicity as requested plan implies simple replacement.
+        return conversionRepository.findAll().stream()
                 .sorted(Comparator.comparing(ConversionRecord::getTimestamp).reversed())
                 .collect(Collectors.toList());
     }
@@ -57,12 +59,12 @@ public class ConversionController {
         Comparator<ConversionRecord> comparator = Comparator.comparing(ConversionRecord::getSourceAmount);
         
         if ("max".equalsIgnoreCase(type)) {
-            return history.stream()
+            return conversionRepository.findAll().stream()
                     .sorted(comparator.reversed())
                     .limit(5)
                     .collect(Collectors.toList());
         } else if ("min".equalsIgnoreCase(type)) {
-            return history.stream()
+            return conversionRepository.findAll().stream()
                     .sorted(comparator)
                     .limit(5)
                     .collect(Collectors.toList());

@@ -1,0 +1,29 @@
+INSTRUKCJA URUCHOMIENIA (JAK WŁĄCZYĆ)
+
+1. UPEWNIJ SIĘ, ŻE MASZ ZAINSTALOWANEGO POSTGRESA
+   - Jeśli nie masz, pobierz ze strony: https://www.postgresql.org/download/
+
+2. STWÓRZ BAZĘ DANYCH
+   - Otwórz PgAdmin lub terminal (psql).
+   - Zaloguj się (zazwyczaj użytkownik 'postgres', hasło jakie ustawiłeś przy instalacji).
+   - Wykonaj polecenie SQL:
+     CREATE DATABASE currency2_db;
+
+   - Jeśli twoje hasło jest inne niż 'password', wejdź w plik:
+     src/main/resources/application.properties
+     i zmień linijkę:
+     spring.datasource.password=TWOJE_HASLO
+
+3. URUCHOM PROJEKT W INTELLIJ
+   - Otwórz projekt w IntelliJ IDEA.
+   - Poczekaj aż Maven (narzędzie budujące) ściągnie biblioteki (pasek na dole po prawej).
+   - Znajdź plik: src/main/java/com/barrelbeczka/converter/CurrencyConverterApplication.java
+   - Kliknij prawym przyciskiem myszy -> Run 'CurrencyConverterApplication'.
+
+4. SPRAWDŹ CZY DZIAŁA
+   - Aplikacja automatycznie utworzy tabele w bazie currency2_db.
+   - Aplikacja automatycznie doda kurs dolara (4.0 zł) dzięki plikowi resources/data.sql.
+   - Wejdź w przeglądarce na: http://localhost:8080
+
+5. ZMIANA KURSU
+   - Kurs jest teraz w bazie danych. Aby go zmienić, musisz edytować tabelę 'exchange_rate' w bazie danych (np. przez PgAdmin).
